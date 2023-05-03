@@ -1,3 +1,4 @@
-from window import *
+import window
 
-GUI()
+window.initWindow()
+	
