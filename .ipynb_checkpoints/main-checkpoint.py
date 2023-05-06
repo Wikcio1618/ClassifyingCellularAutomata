@@ -1,4 +1,7 @@
 import window
 
-window.initWindow()
-	
+def main():
+	window.initWindow()
+
+if __name__ == "__main__":
+	main()
