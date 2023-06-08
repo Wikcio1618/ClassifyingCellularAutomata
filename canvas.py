@@ -1,4 +1,4 @@
-import automaton
+from automaton import Automaton
 
 from tkinter import Canvas
 import time
@@ -6,12 +6,12 @@ from threading import Thread, Event
 import numpy as np
 
 class CustomCanvas(Canvas):
-	def __init__(self, root, primary_col, bg_color):
-		self.WIDTH = 500
-		self.HEIGHT = 500
+	def __init__(self, root, primary_col, bg_color, width, height):
+		self.WIDTH = width
+		self.HEIGHT = height
 
 		# Define the size of each cell
-		self.CELL_SIZE = 5
+		self.CELL_SIZE = 3
 
 		# Define the number of cells in each direction
 		self.NUM_CELLS_X = self.WIDTH // self.CELL_SIZE # double slash works as floor division
@@ -21,7 +21,7 @@ class CustomCanvas(Canvas):
 		self.CELL_COLOR = "gold"
 		self.NO_CELL_COLOR = "midnightblue"
 		
-		super().__init__(root, width=self.WIDTH, height=self.HEIGHT, bg=bg_color, bd=1, scrollregion=(0, 0, np.inf, 0))
+		super().__init__(root, width=self.WIDTH, height=self.HEIGHT, bg=bg_color, bd=1, highlightbackground=primary_col, scrollregion=(0, 0, np.inf, 0))
 		# Define the size of the canvas
 		
 		self.currGen = np.random.randint(2, size=self.NUM_CELLS_X)
@@ -52,7 +52,7 @@ class CustomCanvas(Canvas):
 
 
 	def updateRow(self):
-		self.currGen = automaton.nextGen(self.NUM_CELLS_X, self.currGen)
+		self.currGen = Automaton.nextLayer(self.currGen)
 		for x in range(self.NUM_CELLS_X):
 			self.drawCell(x, self.rowToUpdate, self.currGen[x])
 		if self.rowToUpdate > self.NUM_CELLS_Y:
@@ -62,6 +62,13 @@ class CustomCanvas(Canvas):
 	def animateRows(self):
 		while self.thread_running_event.is_set():
 			self.updateRow()
-			if self.rowToUpdate <= self.NUM_CELLS_Y:
-				self.rowToUpdate += 1
+			if self.rowToUpdate >= self.NUM_CELLS_Y:
+				self.delete('all')
+				self.rowToUpdate=0
+			self.rowToUpdate += 1
 			time.sleep(0.01)
+
+	def reset(self):
+		self.rowToUpdate=0
+		self.currGen = np.random.randint(2, size=self.NUM_CELLS_X)
+		self.delete('all')
